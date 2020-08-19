@@ -34,9 +34,9 @@ struct CameraView: View {
                         })
                     }
                 }.onAppear {
-                        self.avFoundationVM.startSession()
+                    self.avFoundationVM.startSession()
                 }.onDisappear {
-                        self.avFoundationVM.endSession()
+                    self.avFoundationVM.endSession()
                 }
             }
         }
@@ -53,11 +53,11 @@ struct PrevFrame: View {
     var body: some View {
         VStack {
             if image!.count > 0 {
-            Image(uiImage: image![image!.count-1])
-                .resizable()
-                //.aspectRatio(1, contentMode: .fit)
-                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
-                .opacity(index > 0 ? 0.1 : 0)
+                Image(uiImage: image![image!.count-1])
+                    .resizable()
+                    //.aspectRatio(1, contentMode: .fit)
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
+                    .opacity(index > 0 ? 0.1 : 0)
             }
         }.edgesIgnoringSafeArea(.top)
     }
@@ -68,11 +68,11 @@ struct Counter: View {
     var count: Int
     var body: some View {
         Text(String(self.count))
-        .font(.system(size:300))
-        .opacity(self.count > 0 ? 0.1 : 0)
-        .foregroundColor(.white)
-        //.animation(.easeInOut(duration:0.5))
-        .transition(.asymmetric(insertion: .opacity, removal: .scale))
+            .font(.system(size:300))
+            .opacity(self.count > 0 ? 0.1 : 0)
+            .foregroundColor(.white)
+            //.animation(.easeInOut(duration:0.5))
+            .transition(.asymmetric(insertion: .opacity, removal: .scale))
     }
 }
 
@@ -82,69 +82,96 @@ struct CameraControls: View {
     @Binding var showPreview: Bool
     @Binding var count: Int
     
-    var body: some View{
-        VStack {
-            HStack {
-                Image(systemName: "xmark.circle")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .padding(10)
-                .frame(width: 55, height: 55)
-                .onTapGesture {
-                    self.goHome()
-                }
-                ZStack {
-                    Text("Snap each frame with the button below")
-                        .font(.callout)
-                        .padding(8)
-                        .foregroundColor(.white)
-                }.background(Color.black)
-                .opacity(0.5)
-                //.cornerRadius(10.0)
-                //.padding(6)
-                Spacer()
-            }
-            Spacer()
-            //FilterView()
-            HStack {
-                if self.avFoundationVM.image !== nil {
-                    Image(uiImage: self.avFoundationVM.image!)
-                    .resizable()
-                    .aspectRatio(1, contentMode: .fill)
-                    .frame(width: 70,height:70)
-                } else {
-                    Image(systemName:"square")
-                    .resizable()
-                    .aspectRatio(1, contentMode: .fill)
-                    .frame(width: 70,height:70)
-                    .opacity(0)
-                }
-                Spacer()
-                Button(action: {
-                    self.avFoundationVM.takePhoto()
-                    self.count+=1
-                }) {
-                    Image(systemName: "camera.circle.fill")
-                    .renderingMode(.original)
-                    .resizable()
-                    .frame(width: 70, height: 70)
-                }
-                Spacer()
-                Button(action:{
-                    if(self.count > 0){
-                        self.showPreview = true
+    var body: some View {
+        ZStack {
+            VStack{
+                HStack {
+                    Image(systemName: "xmark.circle")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .padding(10)
+                        .frame(width: 55, height: 55)
+                        .onTapGesture {
+                            self.goHome()
                     }
-                }) {
-                    //Image("spin")
-                    Text("Stitch")
-                    .padding(10)
-                    .frame(width: 80)
-                    .background(Color.red)
-                    .foregroundColor(.white)
-                    .font(.body)
-                }.opacity(self.count > 0 ? 1:0)
-            }.padding(10)
-        }.padding(.bottom, 10.0)
+                    ZStack {
+                        Text("Snap each frame with the button below")
+                            .font(.callout)
+                            .padding(8)
+                            .foregroundColor(.white)
+                    }.background(Color.black)
+                        .opacity(0.5)
+                    Spacer()
+                }
+                Spacer()
+                //FilterView()
+                ZStack{
+                    //image
+                    HStack {
+                        if self.avFoundationVM.image !== nil {
+                            Image(uiImage: self.avFoundationVM.image!)
+                                .resizable()
+                                .aspectRatio(self.avFoundationVM.image!.size, contentMode: .fit)
+                                .frame(height:UIScreen.screenHeight/5)
+                                .cornerRadius(10)
+                                .overlay(RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.white, lineWidth: 2))
+                        } else {
+                            Image(systemName:"square")
+                                .resizable()
+                                .aspectRatio(1, contentMode: .fill)
+                                .frame(height:UIScreen.screenHeight/5)
+                                .opacity(0)
+                        }
+                        Spacer()
+                    }//end image
+                    //camera button
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            self.avFoundationVM.takePhoto()
+                            self.count+=1
+                        }) {
+                            Image(systemName: "camera.circle.fill")
+                                .renderingMode(.original)
+                                .resizable()
+                                .frame(width: 70, height: 70)
+                        }
+                        Spacer()
+                    }
+                    //end camera button
+                }.padding([.leading,.bottom], 5.0)
+            }
+            HStack {
+                Spacer()
+                VStack{
+                    Spacer()
+                    Button(action:{
+                    }) {
+                        Text("Filter")
+                            .padding(10)
+                            .frame(width: 80)
+                            .background(Color.red)
+                            .foregroundColor(.white)
+                            .font(.body)
+                    }.opacity(self.count > 0 ? 1:0)
+                    Button(action:{
+                        if(self.count > 0){
+                            self.showPreview = true
+                        }
+                    }) {
+                        Text("Stitch")
+                            .padding(10)
+                            .frame(width: 80)
+                            .background(Color.red)
+                            .foregroundColor(.white)
+                            .font(.body)
+                    }
+                    .opacity(self.count > 0 ? 1:0)
+                    .padding(.top,10)
+                }
+            }.padding([.trailing,.bottom], 5.0)
+        }
     }
 }
 
